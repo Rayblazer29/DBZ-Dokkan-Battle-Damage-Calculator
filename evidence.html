@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Evidence | Dokkan Damage Calculator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="title">Dokkan Damage Calculator</h1>
+      <p class="subtitle">Evidence and reference material for the calculator.</p>
+      <nav class="navboard" aria-label="Primary">
+        <a class="nav-link" href="index.html">Calculator</a>
+        <a class="nav-link is-active" href="evidence.html">Evidence</a>
+        <a class="nav-link" href="devlog.html">Devlog</a>
+      </nav>
+
+      <section class="card info-panel">
+        <h2>Evidence</h2>
+        <p>
+          The formula for calculation of damage is as follows: 
+        </p>
+        <br>
+        <p>
+          Damage = (EnemyAttackStat * (SuperAttackMultiplier - AttackLoweringEffectFromSuper) * (100% - AttackLoweringPassive) * (100% - TotalDamageReduction) * TypeEffectiveness * variance - DefenseStat) * GuardMultiplier
+          <br><br>
+          Note: variance is fixed at 1.03, as damage ranges from 1x to 1.03x of original value
+        </p>
+        <p>
+          <br><br>
+          (credits to users u/trashguybob and u/LR_AlternativeForce on Reddit for the formula. You can find the original post here
+          <a href="https://www.reddit.com/r/DBZDokkanBattle/comments/weidle/how_damage_taken_works_dokkan_battle_complete/?share_id=GSOn2Gi7Th8K379JZ5WBU&utm_content=1&utm_medium=ios_app&utm_name=ioscss&utm_source=share&utm_term=3" target="_blank" rel="noopener noreferrer">on Reddit</a>.)
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

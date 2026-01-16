@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dokkan Damage Calculator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="title">Dokkan Damage Calculator</h1>
+      <p class="subtitle">Enter character stats and modifiers to estimate damage taken.</p>
+      <nav class="navboard" aria-label="Primary">
+        <a class="nav-link is-active" href="index.html">Calculator</a>
+        <a class="nav-link" href="evidence.html">Evidence</a>
+        <a class="nav-link" href="devlog.html">Devlog</a>
+      </nav>
+      <p class="subtitle">
+        You can find information/stats of enemies here:
+        <a href="https://dokkaninfo.com/events/challenge" target="_blank" rel="noopener noreferrer">
+          https://dokkaninfo.com/events/challenge
+        </a>
+      </p>
+
+      <section class="calculator">
+        <form id="calc-form" class="card">
+          <section class="panel panel-ally">
+            <h2>Your Character</h2>
+            <div class="grid">
+              <label>
+                Type
+                <select id="allyType">
+                  <option value="AGL">AGL</option>
+                  <option value="INT">INT</option>
+                  <option value="PHY">PHY</option>
+                  <option value="STR">STR</option>
+                  <option value="TEQ">TEQ</option>
+                </select>
+              </label>
+
+              <label>
+                Class
+                <select id="allyClass">
+                  <option value="Super">Super</option>
+                  <option value="Extreme">Extreme</option>
+                </select>
+              </label>
+
+              <label>
+                Defense
+                <input type="number" id="defense" min="0" step="1" value="200000" required>
+              </label>
+
+              <label>
+                Defense Buff % (on hit)
+                <input type="number" id="defBuff" min="0" step="1" value="0">
+              </label>
+
+              <label>
+                Damage Reduction %
+                <input type="number" id="damageReduction" min="0" step="0.1" value="0">
+              </label>
+
+              <label>
+                DR vs Normals %
+                <input type="number" id="drNormals" min="0" step="0.1" value="0">
+              </label>
+
+              <label>
+                DR vs Super Attacks %
+                <input type="number" id="drSupers" min="0" step="0.1" value="0">
+              </label>
+
+              <label class="checkbox">
+                <input type="checkbox" id="passiveGuard">
+                Passive Guard Active
+              </label>
+            </div>
+          </section>
+
+          <section class="panel panel-enemy">
+            <h2>Enemy Character</h2>
+            <div class="grid">
+              <label>
+                Type
+                <select id="enemyType">
+                  <option value="AGL">AGL</option>
+                  <option value="INT">INT</option>
+                  <option value="PHY">PHY</option>
+                  <option value="STR">STR</option>
+                  <option value="TEQ">TEQ</option>
+                </select>
+              </label>
+
+              <label>
+                Class
+                <select id="enemyClass">
+                  <option value="Super">Super</option>
+                  <option value="Extreme">Extreme</option>
+                </select>
+              </label>
+
+              <label>
+                Enemy ATK
+                <input type="number" id="enemyAtk" min="0" step="1" value="300000" required>
+              </label>
+
+              <label>
+                Super ATK Multiplier
+                <input type="number" id="saMultiplier" min="0" step="0.01" value="1" required>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel panel-modifiers">
+            <h2>Other Modifiers</h2>
+            <div class="grid">
+              <label>
+                ATK Down (SA) %
+                <input type="number" id="atkDownSa" min="0" max="100" step="0.1" value="0">
+              </label>
+
+              <label>
+                ATK Down (Item) %
+                <input type="number" id="atkDownItem" min="0" max="100" step="0.1" value="0">
+              </label>
+
+              <label>
+                ATK Down (Passive) %
+                <input type="number" id="atkDownPassive" min="0" max="100" step="0.1" value="0">
+              </label>
+
+            </div>
+          </section>
+
+          <div class="actions">
+            <button type="submit">Calculate</button>
+            <button type="button" id="resetBtn">Reset</button>
+          </div>
+        </form>
+
+        <section class="result card">
+          <h2>Result</h2>
+          <table class="result-table">
+            <tr>
+              <th>Damage taken from Super Attack:</th>
+              <td id="superResult">0</td>
+            </tr>
+            <tr>
+              <th>Damage taken from Normal Attack:</th>
+              <td id="normalResult">0</td>
+            </tr>
+          </table>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("calc-form");
+      const resetBtn = document.getElementById("resetBtn");
+      const superResult = document.getElementById("superResult");
+      const normalResult = document.getElementById("normalResult");
+
+      const toDecimal = (value) => Math.max(0, Math.min(1, value / 100));
+
+      const getTypeAndGuardMultipliers = (classMatch, typeMatch, passiveGuard) => {
+        if (passiveGuard) {
+          return { typeMultiplier: 0.8, guardMultiplier: 0.5 };
+        }
+
+        if (classMatch === "same" && typeMatch === "disadvantage") return { typeMultiplier: 1.25, guardMultiplier: 1 };
+        if (classMatch === "opposite" && typeMatch === "disadvantage") return { typeMultiplier: 1.5, guardMultiplier: 1 };
+        if (classMatch === "same" && typeMatch === "neutral") return { typeMultiplier: 1, guardMultiplier: 1 };
+        if (classMatch === "opposite" && typeMatch === "neutral") return { typeMultiplier: 1.15, guardMultiplier: 1 };
+        if (classMatch === "same" && typeMatch === "advantage") return { typeMultiplier: 0.9, guardMultiplier: 0.5 };
+        if (classMatch === "opposite" && typeMatch === "advantage") return { typeMultiplier: 1, guardMultiplier: 0.5 };
+
+        return { typeMultiplier: 1, guardMultiplier: 1 };
+      };
+
+      const calculateDamage = () => {
+        const enemyAtk = Number(document.getElementById("enemyAtk").value);
+        const saMultiplier = Number(document.getElementById("saMultiplier").value);
+        const atkDownSa = toDecimal(Number(document.getElementById("atkDownSa").value));
+        const atkDownItem = toDecimal(Number(document.getElementById("atkDownItem").value));
+        const atkDownPassive = toDecimal(Number(document.getElementById("atkDownPassive").value));
+        const damageReduction = toDecimal(Number(document.getElementById("damageReduction").value));
+        const drNormals = toDecimal(Number(document.getElementById("drNormals").value));
+        const drSupers = toDecimal(Number(document.getElementById("drSupers").value));
+        const defense = Number(document.getElementById("defense").value);
+        const defBuff = Math.max(0, Number(document.getElementById("defBuff").value) / 100);
+        const variance = 1.03;
+        const allyType = document.getElementById("allyType").value;
+        const enemyType = document.getElementById("enemyType").value;
+        const allyClass = document.getElementById("allyClass").value;
+        const enemyClass = document.getElementById("enemyClass").value;
+        const passiveGuard = document.getElementById("passiveGuard").checked;
+
+        const typeOrder = {
+          AGL: "STR",
+          STR: "PHY",
+          PHY: "INT",
+          INT: "TEQ",
+          TEQ: "AGL",
+        };
+
+        const classMatch = allyClass === enemyClass ? "same" : "opposite";
+        let typeMatch = "neutral";
+        if (allyType !== enemyType) {
+          if (typeOrder[allyType] === enemyType) {
+            typeMatch = "advantage";
+          } else if (typeOrder[enemyType] === allyType) {
+            typeMatch = "disadvantage";
+          }
+        }
+
+        const { typeMultiplier, guardMultiplier } = getTypeAndGuardMultipliers(
+          classMatch,
+          typeMatch,
+          passiveGuard
+        );
+
+        //Base
+        const base = enemyAtk;
+        const maxVariance = Math.max(1, variance);
+
+        const computeRange = (saMulti, specificDRValue) => {
+          //Applying super attack multipler and if attack was reduced by your character performing super attacks
+          const saAfterDown = Math.max(0, saMulti - atkDownSa);
+
+          //Applying all variations of attack-lowering effects
+          const afterAtkDowns = base * saAfterDown * (1 - atkDownItem) * (1 - atkDownPassive);
+
+          //Applying damage reduction variants
+          const afterDr = afterAtkDowns * (1 - damageReduction) * (1 - specificDRValue);
+
+          //Applying the effect of the type advantage/disadvantage, as well as finding the range of damage taken
+          const minAfterType = afterDr * typeMultiplier;
+          const maxAfterType = afterDr * typeMultiplier * maxVariance;
+
+          //Finally accounting for defense and guard of the unit
+          const buffedDefense = defense * (1 + defBuff);
+          const minDamage = Math.max(0, (minAfterType - buffedDefense) * guardMultiplier);
+          const maxDamage = Math.max(0, (maxAfterType - buffedDefense) * guardMultiplier);
+          
+          //Output text
+
+          //In the game, if damage ammounts to 0, game chooses a number from 9 to 132
+          if (maxDamage === 0) {
+            return "9 - 132";
+          }
+
+          const minText = Math.round(minDamage).toLocaleString();
+          const maxText = Math.round(maxDamage).toLocaleString();
+          return `${minText} - ${maxText}`;
+        };
+        //Super attacks use the multiplier and DR vs Supers
+        superResult.textContent = computeRange(saMultiplier, drSupers);
+        //Normal attacks don't use the multiplier but use DR vs Normals
+        normalResult.textContent = computeRange(1, drNormals);
+      };
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        calculateDamage();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        form.reset();
+        superResult.textContent = "0";
+        normalResult.textContent = "0";
+      });
+    </script>
+  </body>
+</html>
