@@ -109,6 +109,7 @@
                 Super ATK Multiplier
                 <input type="number" id="saMultiplier" min="0" step="0.01" value="1" required>
               </label>
+
             </div>
           </section>
 
@@ -168,14 +169,22 @@
           return { typeMultiplier: 0.8, guardMultiplier: 0.5 };
         }
 
-        if (classMatch === "same" && typeMatch === "disadvantage") return { typeMultiplier: 1.25, guardMultiplier: 1 };
-        if (classMatch === "opposite" && typeMatch === "disadvantage") return { typeMultiplier: 1.5, guardMultiplier: 1 };
-        if (classMatch === "same" && typeMatch === "neutral") return { typeMultiplier: 1, guardMultiplier: 1 };
-        if (classMatch === "opposite" && typeMatch === "neutral") return { typeMultiplier: 1.15, guardMultiplier: 1 };
-        if (classMatch === "same" && typeMatch === "advantage") return { typeMultiplier: 0.9, guardMultiplier: 0.5 };
-        if (classMatch === "opposite" && typeMatch === "advantage") return { typeMultiplier: 1, guardMultiplier: 0.5 };
+        const effectiveTypeMatch = typeMatch;
 
-        return { typeMultiplier: 1, guardMultiplier: 1 };
+        let typeMultiplier = 1;
+        if (classMatch === "same" && effectiveTypeMatch === "disadvantage") typeMultiplier = 1.25;
+        if (classMatch === "opposite" && effectiveTypeMatch === "disadvantage") typeMultiplier = 1.5;
+        if (classMatch === "same" && effectiveTypeMatch === "neutral") typeMultiplier = 1;
+        if (classMatch === "opposite" && effectiveTypeMatch === "neutral") typeMultiplier = 1.15;
+        if (classMatch === "same" && effectiveTypeMatch === "advantage") typeMultiplier = 0.9;
+        if (classMatch === "opposite" && effectiveTypeMatch === "advantage") typeMultiplier = 1;
+
+        let guardMultiplier = effectiveTypeMatch === "advantage" ? 0.5 : 1;
+        if (passiveGuard) {
+          guardMultiplier = 0.5;
+        }
+
+        return { typeMultiplier, guardMultiplier };
       };
 
       const calculateDamage = () => {
@@ -214,12 +223,6 @@
           }
         }
 
-        const { typeMultiplier, guardMultiplier } = getTypeAndGuardMultipliers(
-          classMatch,
-          typeMatch,
-          passiveGuard
-        );
-
         //Base
         const base = enemyAtk;
         const maxVariance = Math.max(1, variance);
@@ -234,6 +237,12 @@
           //Applying damage reduction variants
           const afterDr = afterAtkDowns * (1 - damageReduction) * (1 - specificDRValue);
 
+          const { typeMultiplier, guardMultiplier } = getTypeAndGuardMultipliers(
+            classMatch,
+            typeMatch,
+            passiveGuard
+          );
+
           //Applying the effect of the type advantage/disadvantage, as well as finding the range of damage taken
           const minAfterType = afterDr * typeMultiplier;
           const maxAfterType = afterDr * typeMultiplier * maxVariance;
@@ -242,7 +251,7 @@
           const buffedDefense = defense * (1 + defBuff);
           const minDamage = Math.max(0, (minAfterType - buffedDefense) * guardMultiplier);
           const maxDamage = Math.max(0, (maxAfterType - buffedDefense) * guardMultiplier);
-          
+
           //Output text
 
           //In the game, if damage ammounts to 0, game chooses a number from 9 to 132
@@ -258,6 +267,7 @@
         superResult.textContent = computeRange(saMultiplier, drSupers);
         //Normal attacks don't use the multiplier but use DR vs Normals
         normalResult.textContent = computeRange(1, drNormals);
+
       };
 
       form.addEventListener("submit", (event) => {
