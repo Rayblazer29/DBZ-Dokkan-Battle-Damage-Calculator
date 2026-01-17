@@ -46,6 +46,8 @@
                 </select>
               </label>
 
+              <div class="grid-break" aria-hidden="true"></div>
+
               <label>
                 Defense
                 <input type="number" id="defense" min="0" step="1" value="200000" required>
@@ -58,23 +60,34 @@
 
               <label>
                 Damage Reduction %
-                <input type="number" id="damageReduction" min="0" step="0.1" value="0">
+                <input type="number" id="damageReduction" min="0" step="1" value="0">
               </label>
 
-              <label>
-                DR vs Normals %
-                <input type="number" id="drNormals" min="0" step="0.1" value="0">
-              </label>
+              <div class="grid-break" aria-hidden="true"></div>
 
-              <label>
-                DR vs Super Attacks %
-                <input type="number" id="drSupers" min="0" step="0.1" value="0">
-              </label>
+              <div class="toggle-field">
+                <p class="toggle-label">Guard</p>
+                <div class="toggle-button">
+                  <input type="checkbox" id="passiveGuard">
+                  <label for="passiveGuard" data-off="No Guard" data-on="Guard Active"></label>
+                </div>
+              </div>
 
-              <label class="checkbox">
-                <input type="checkbox" id="passiveGuard">
-                Passive Guard Active
-              </label>
+              <div class="additional-dr">
+                <input type="checkbox" id="additionalDrToggle" class="additional-dr-toggle">
+                <label for="additionalDrToggle" class="additional-dr-label">Additional DR?</label>
+                <div class="additional-dr-fields">
+                  <label>
+                    DR vs Normals %
+                    <input type="number" id="drNormals" min="0" step="1" value="0">
+                  </label>
+
+                  <label>
+                    DR vs Super Attacks %
+                    <input type="number" id="drSupers" min="0" step="1" value="0">
+                  </label>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -100,15 +113,32 @@
                 </select>
               </label>
 
+              <div class="grid-break" aria-hidden="true"></div>
+
               <label>
-                Enemy ATK
+                Attack
                 <input type="number" id="enemyAtk" min="0" step="1" value="300000" required>
               </label>
 
               <label>
-                Super ATK Multiplier
+                Attack Buff %
+                <input type="number" id="enemyAtkBuff" min="0" step="1" value="0">
+              </label>
+
+              <label>
+                Super Attack Multiplier
                 <input type="number" id="saMultiplier" min="0" step="0.01" value="1" required>
               </label>
+
+              <div class="grid-break" aria-hidden="true"></div>
+
+              <div class="toggle-field">
+                <p class="toggle-label">Crit</p>
+                <div class="toggle-button toggle-button--crit">
+                  <input type="checkbox" id="enemyCrit">
+                  <label for="enemyCrit" data-off="No Crit" data-on="Crit"></label>
+                </div>
+              </div>
 
             </div>
           </section>
@@ -118,17 +148,17 @@
             <div class="grid">
               <label>
                 ATK Down (SA) %
-                <input type="number" id="atkDownSa" min="0" max="100" step="0.1" value="0">
+                <input type="number" id="atkDownSa" min="0" max="100" step="1" value="0">
               </label>
 
               <label>
                 ATK Down (Item) %
-                <input type="number" id="atkDownItem" min="0" max="100" step="0.1" value="0">
+                <input type="number" id="atkDownItem" min="0" max="100" step="1" value="0">
               </label>
 
               <label>
                 ATK Down (Passive) %
-                <input type="number" id="atkDownPassive" min="0" max="100" step="0.1" value="0">
+                <input type="number" id="atkDownPassive" min="0" max="100" step="1" value="0">
               </label>
 
             </div>
@@ -194,10 +224,16 @@
         const atkDownItem = toDecimal(Number(document.getElementById("atkDownItem").value));
         const atkDownPassive = toDecimal(Number(document.getElementById("atkDownPassive").value));
         const damageReduction = toDecimal(Number(document.getElementById("damageReduction").value));
-        const drNormals = toDecimal(Number(document.getElementById("drNormals").value));
-        const drSupers = toDecimal(Number(document.getElementById("drSupers").value));
+        const additionalDr = document.getElementById("additionalDrToggle").checked;
+        const drNormals = additionalDr
+          ? toDecimal(Number(document.getElementById("drNormals").value))
+          : 0;
+        const drSupers = additionalDr
+          ? toDecimal(Number(document.getElementById("drSupers").value))
+          : 0;
         const defense = Number(document.getElementById("defense").value);
         const defBuff = Math.max(0, Number(document.getElementById("defBuff").value) / 100);
+        const atkBuff = Math.max(0, Number(document.getElementById("enemyAtkBuff").value) / 100);
         const variance = 1.03;
         const allyType = document.getElementById("allyType").value;
         const enemyType = document.getElementById("enemyType").value;
@@ -229,7 +265,7 @@
 
         const computeRange = (saMulti, specificDRValue) => {
           //Applying super attack multipler and if attack was reduced by your character performing super attacks
-          const saAfterDown = Math.max(0, saMulti - atkDownSa);
+          const saAfterDown = Math.max(0, saMulti - atkDownSa + atkBuff);
 
           //Applying all variations of attack-lowering effects
           const afterAtkDowns = base * saAfterDown * (1 - atkDownItem) * (1 - atkDownPassive);
@@ -254,7 +290,7 @@
 
           //Output text
 
-          //In the game, if damage ammounts to 0, game chooses a number from 9 to 132
+            //In the game, if damage ammounts to 0, game chooses a number from 9 to 132
           if (maxDamage === 0) {
             return "9 - 132";
           }

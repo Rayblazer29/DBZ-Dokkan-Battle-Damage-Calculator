@@ -26,7 +26,10 @@
   --bg-art-right-size: 40vw auto;
   --bg-art-right-scale: 3.2;
   --bg-art-right-offset-x: 50vw;
-  --bg-art-right-offset-y: 65vh;
+  --bg-art-right-offset-y: 73vh;
+
+  /*Below is LR GOLDEN FREDDY's position and scale settings */
+  
 }
 
 body {
@@ -152,6 +155,13 @@ h1 {
   gap: 16px;
 }
 
+.grid-break {
+  grid-column: 1 / -1;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
 .panel {
   margin-bottom: 20px;
 }
@@ -187,7 +197,8 @@ label {
 }
 
 input,
-select {
+select,
+button {
   padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #3a3a3a;
@@ -195,11 +206,143 @@ select {
   color: #f4f4f4;
 }
 
+input,
+select,
+button {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+input:hover,
+input:focus-visible,
+select:hover,
+select:focus-visible,
+button:hover,
+button:focus-visible {
+  border-color: #e45b13;
+  box-shadow: 0 0 0 2px rgba(228, 91, 19, 0.2), 0 0 18px rgba(228, 91, 19, 0.25);
+  transform: translateY(-1px);
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  animation: select-pulse 1.4s ease-in-out infinite;
+}
+
 .checkbox {
   flex-direction: row;
   align-items: center;
   gap: 10px;
   padding-top: 22px;
+}
+
+.toggle-field {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.toggle-label {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #d9d9d9;
+}
+
+.toggle-button {
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #151a22, #0f1319);
+  border: 1px solid #2b2f36;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.toggle-button input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-button label {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2f76c5, #23456e);
+  border: 1px solid #4f88cb;
+  color: #f4f4f4;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.toggle-button label::after {
+  content: attr(data-off);
+}
+
+.toggle-button input:checked + label {
+  background: linear-gradient(135deg, #5fd58e, #2f9f63);
+  border-color: #86e3ab;
+  box-shadow: 0 10px 22px rgba(95, 213, 142, 0.3);
+  transform: translateY(-1px);
+}
+
+.toggle-button input:checked + label::after {
+  content: attr(data-on);
+}
+
+.toggle-button input:focus-visible + label,
+.toggle-button label:hover {
+  border-color: #e45b13;
+  box-shadow: 0 0 0 2px rgba(228, 91, 19, 0.2), 0 0 16px rgba(228, 91, 19, 0.25);
+  transform: translateY(-1px);
+}
+
+.toggle-button--crit input:checked + label {
+  background: linear-gradient(135deg, #f26b3a, #c34024);
+  border-color: #ff9a6b;
+  box-shadow: 0 10px 22px rgba(242, 107, 58, 0.3);
+}
+
+.additional-dr {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.additional-dr-toggle {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: #e45b13;
+}
+
+.additional-dr-label {
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #d9d9d9;
+}
+
+.additional-dr-fields {
+  grid-column: 1 / -1;
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.additional-dr-toggle:checked ~ .additional-dr-fields {
+  display: grid;
 }
 
 .actions {
@@ -318,4 +461,14 @@ button#resetBtn {
   margin: 0;
   color: #bfbfbf;
   letter-spacing: 0.5px;
+}
+
+@keyframes select-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(228, 91, 19, 0.2), 0 0 10px rgba(228, 91, 19, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(228, 91, 19, 0.35), 0 0 22px rgba(228, 91, 19, 0.35);
+  }
 }
