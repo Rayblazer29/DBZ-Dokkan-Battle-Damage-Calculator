@@ -9,7 +9,7 @@
   <body>
     <main class="app">
       <h1 class="title">Dokkan Damage Calculator</h1>
-      <p class="subtitle">Enter character stats and modifiers to estimate damage taken.</p>
+      <p class="subtitle">Enter stats to estimate damage taken!</p>
       <nav class="navboard" aria-label="Primary">
         <a class="nav-link is-active" href="index.html">Calculator</a>
         <a class="nav-link" href="evidence.html">Evidence</a>
@@ -21,7 +21,6 @@
           https://dokkaninfo.com/events/challenge
         </a>
       </p>
-
       <section class="calculator">
         <form id="calc-form" class="card">
           <section class="panel panel-ally">
@@ -112,6 +111,37 @@
                   <option value="Extreme">Extreme</option>
                 </select>
               </label>
+              <details class="preset-dropdown">
+                <summary>Presets</summary>
+                <div class="preset-list">
+                  <!-- Bio Broly Presets-->
+                   <details class="preset-group">
+                    <summary>ALF RZ Bio Broly</summary>
+                    <div class="preset-group-list">
+                      <button type="button" data-preset="ALF RZ Bio Broly">ALF RZ Bio Broly T1</button>
+                      <button type="button" data-preset="ALF RZ Bio Broly Built">ALF RZ Bio Broly (Fully built)</button>
+                    </div>
+                  </details>
+                  
+                  <!-- Gamma 1 & 2 Presets-->
+                  <details class="preset-group">
+                    <summary>ALF RZ Gamma1&2</summary>
+                    <div class="preset-group-list">
+                      <button type = "button" data-preset="ALF RZ Gamma 2 (T2)">ALF RZ Gamma 2 (T2)</button>
+                      <button type="button" data-preset="ALF RZ Gamma1&2 (T1)">ALF RZ Gamma1&2 (T1)</button>
+                      <button type="button" data-preset="ALF RZ Gamma1&2 (T3)">ALF RZ Gamma1&2 (T3)</button>
+                    </div>
+                  </details>
+                  <details class ="preset-group">
+                    <summary>Festival of Battles</summary>
+                    <div class="preset-group-list">
+                      <button type="button" data-preset="FoB AGL Super Gogeta">FoB AGL Super Gogeta</button>
+                      <button type="button" data-preset="FoB TEQ Super Vegito">FoB TEQ Super Vegito</button>
+
+                    </div>
+                  </details>
+                </div>
+              </details>
 
               <div class="grid-break" aria-hidden="true"></div>
 
@@ -120,15 +150,15 @@
                 <input type="number" id="enemyAtk" min="0" step="1" value="300000" required>
               </label>
 
-              <label>
-                Attack Buff %
-                <input type="number" id="enemyAtkBuff" min="0" step="1" value="0">
-              </label>
+                <label>
+                  Attack Buff % (On Super Attack)
+                  <input type="number" id="enemyAtkBuff" min="0" step="1" value="0">
+                </label>
 
-              <label>
-                Super Attack Multiplier
-                <input type="number" id="saMultiplier" min="0" step="0.01" value="1" required>
-              </label>
+                <label>
+                  Super Attack Multiplier
+                  <input type="number" id="saMultiplier" min="0" step="0.01" value="1" required>
+                </label>
 
               <div class="grid-break" aria-hidden="true"></div>
 
@@ -137,6 +167,17 @@
                 <div class="toggle-button toggle-button--crit">
                   <input type="checkbox" id="enemyCrit">
                   <label for="enemyCrit" data-off="No Crit" data-on="Crit"></label>
+                </div>
+              </div>
+
+              <div class="external-atk">
+                <input type="checkbox" id="externalAtkToggle" class="external-atk-toggle">
+                <label for="externalAtkToggle" class="external-atk-label">External Attack Buffs?</label>
+                <div class="external-atk-fields">
+                  <label>
+                    External ATK Buff %
+                    <input type="number" id="externalAtkBuff" min="0" step="1" value="0">
+                  </label>
                 </div>
               </div>
 
@@ -191,8 +232,89 @@
       const resetBtn = document.getElementById("resetBtn");
       const superResult = document.getElementById("superResult");
       const normalResult = document.getElementById("normalResult");
+      const presetButtons = document.querySelectorAll(".preset-list button");
+
+      const enemyPresets = {
+        "ALF RZ Bio Broly": {
+          enemyType: "PHY",
+          enemyClass: "Extreme",
+          enemyAtk: 2250000,
+          enemyAtkBuff: 0,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 0,
+        },
+        "ALF RZ Bio Broly Built": {
+          enemyType: "PHY",
+          enemyClass: "Extreme",
+          enemyAtk: 2250000,
+          enemyAtkBuff: 0,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 200,
+        },
+        "ALF RZ Gamma 2 (T2)": {
+          enemyType: "AGL",
+          enemyClass: "Super",
+          enemyAtk: 1400000,
+          enemyAtkBuff: 50,
+          saMultiplier: 3,
+          enemyCrit: false,
+          externalAtkBuff: 200,
+        },
+        "ALF RZ Gamma1&2 (T1)": {
+          enemyType: "TEQ",
+          enemyClass: "Super",
+          enemyAtk: 1800000,
+          enemyAtkBuff: 50,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 0,
+        },
+        "ALF RZ Gamma1&2 (T3)": {
+          enemyType: "TEQ",
+          enemyClass: "Super",
+          enemyAtk: 1800000,
+          enemyAtkBuff: 50,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 300,
+        },
+        "FoB AGL Super Gogeta": {
+          enemyType: "AGL",
+          enemyClass: "Super",
+          enemyAtk: 7000000,
+          enemyAtkBuff: 50,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 0,
+        },
+        "FoB TEQ Super Vegito": {
+          enemyType: "TEQ",
+          enemyClass: "Super",
+          enemyAtk: 7000000,
+          enemyAtkBuff: 0,
+          saMultiplier: 3.5,
+          enemyCrit: false,
+          externalAtkBuff: 0,
+        },
+      };
 
       const toDecimal = (value) => Math.max(0, Math.min(1, value / 100));
+
+      const applyEnemyPreset = (presetName) => {
+        const preset = enemyPresets[presetName];
+        if (!preset) return;
+
+        document.getElementById("enemyType").value = preset.enemyType;
+        document.getElementById("enemyClass").value = preset.enemyClass;
+        document.getElementById("enemyAtk").value = preset.enemyAtk;
+        document.getElementById("enemyAtkBuff").value = preset.enemyAtkBuff;
+        document.getElementById("saMultiplier").value = preset.saMultiplier;
+        document.getElementById("enemyCrit").checked = preset.enemyCrit;
+        document.getElementById("externalAtkBuff").value = preset.externalAtkBuff;
+        document.getElementById("externalAtkToggle").checked = preset.externalAtkBuff > 0;
+      };
 
       const getTypeAndGuardMultipliers = (classMatch, typeMatch, passiveGuard) => {
         if (passiveGuard) {
@@ -234,6 +356,9 @@
         const defense = Number(document.getElementById("defense").value);
         const defBuff = Math.max(0, Number(document.getElementById("defBuff").value) / 100);
         const atkBuff = Math.max(0, Number(document.getElementById("enemyAtkBuff").value) / 100);
+        const externalAtk = document.getElementById("externalAtkToggle").checked
+          ? Math.max(0, Number(document.getElementById("externalAtkBuff").value) / 100)
+          : 0;
         const variance = 1.03;
         const allyType = document.getElementById("allyType").value;
         const enemyType = document.getElementById("enemyType").value;
@@ -265,7 +390,7 @@
 
         const computeRange = (saMulti, specificDRValue) => {
           //Applying super attack multipler and if attack was reduced by your character performing super attacks
-          const saAfterDown = Math.max(0, saMulti - atkDownSa + atkBuff);
+          const saAfterDown = Math.max(0, saMulti - atkDownSa + atkBuff + externalAtk);
 
           //Applying all variations of attack-lowering effects
           const afterAtkDowns = base * saAfterDown * (1 - atkDownItem) * (1 - atkDownPassive);
@@ -315,6 +440,14 @@
         form.reset();
         superResult.textContent = "0";
         normalResult.textContent = "0";
+      });
+
+      presetButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          applyEnemyPreset(button.dataset.preset);
+          const dropdown = button.closest("details");
+          if (dropdown) dropdown.open = false;
+        });
       });
     </script>
   </body>
