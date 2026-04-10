@@ -132,12 +132,22 @@
                       <button type="button" data-preset="ALF RZ Gamma1&2 (T3)">ALF RZ Gamma1&2 (T3)</button>
                     </div>
                   </details>
+
                   <details class ="preset-group">
                     <summary>Festival of Battles</summary>
                     <div class="preset-group-list">
                       <button type="button" data-preset="FoB AGL Super Gogeta">FoB AGL Super Gogeta</button>
                       <button type="button" data-preset="FoB TEQ Super Vegito">FoB TEQ Super Vegito</button>
 
+                    </div>
+                  </details>
+
+                  <details class ="preset-group">
+                    <summary>SMB RE</summary>
+                    <div class="preset-group-list">
+                      <button type="button" data-preset="SMB RE Goku and Frieza (hp > 77%)">GoFrieza (hp > 77%)</button>
+                      <button type="button" data-preset="SMB RE Goku and Frieza (50% < hp <= 78%)">GoFrieza (50% < hp <= 78%)</button>
+                      <button type="button" data-preset="SMB RE Goku and Frieza (hp <= 50%)">GoFrieza (hp <= 50%)</button>
                     </div>
                   </details>
                 </div>
@@ -297,6 +307,33 @@
           saMultiplier: 3.5,
           enemyCrit: false,
           externalAtkBuff: 0,
+        },
+        "SMB RE Goku and Frieza (hp > 77%)": {
+          enemyType: "STR",
+          enemyClass: "Super",
+          enemyAtk: 3200000,
+          enemyAtkBuff: 20,
+          saMultiplier: 2.5,
+          enemyCrit: false,
+          externalAtkBuff: 0,
+        },
+        "SMB RE Goku and Frieza (50% < hp <= 78%)": {
+          enemyType: "STR",
+          enemyClass: "Super",
+          enemyAtk: 3200000,
+          enemyAtkBuff: 20,
+          saMultiplier: 2.5,
+          enemyCrit: false,
+          externalAtkBuff: 50,
+        },
+        "SMB RE Goku and Frieza (hp <= 50%)": {
+          enemyType: "STR",
+          enemyClass: "Super",
+          enemyAtk: 3200000,
+          enemyAtkBuff: 20,
+          saMultiplier: 2.5,
+          enemyCrit: false,
+          externalAtkBuff: 150,
         },
       };
 
